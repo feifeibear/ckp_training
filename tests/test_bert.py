@@ -28,11 +28,11 @@ def test_bert_model(is_ckp: bool = False, is_fp16: bool = False, hidden_dim = 76
 
     device = torch.device('cuda:0')
     sequence_length = 512
-
     if is_ckp:
-        model = BertForSequenceClassification(BertConfig())
+        cfg = BertConfig(gradient_checkpointing = True)
     else:
-        model = BertForSequenceClassification(BertConfig())
+        cfg = BertConfig()
+    model = BertForSequenceClassification(cfg)
     model.cuda()
 
     see_memory_usage(f"CKP {is_ckp} after model init", force = True)
@@ -40,8 +40,8 @@ def test_bert_model(is_ckp: bool = False, is_fp16: bool = False, hidden_dim = 76
     if is_fp16:
         model = FP16_Module(model)
 
-    if is_ckp:
-        pass
+    # if is_ckp:
+    #     pass
         # model.init_ckp(batch_size, torch.half if is_fp16 else torch.float)
 
 
@@ -115,6 +115,7 @@ if __name__ == "__main__":
     # 训练参数，可以自己定义
     hidden_dim = 768
     batch_size = 2
+    torch.manual_seed(0)
     test_bert_model(is_ckp=use_ckp, is_fp16=use_fp16,hidden_dim=hidden_dim, batch_size=batch_size)
 
     # calculate_mem_need(hidden_dim = hidden_dim, batch_size = batch_size, is_fp16 = use_fp16)
