@@ -16,11 +16,12 @@
 `tests/test_ckp.py [--use_ckp] [--use_fp16] [--res_check]`
 
 #### 结果
-不使用checkpoint优化(MA = Memory Allocation. CA = Cached Allocation)
+FP16不使用checkpoint优化(MA = Memory Allocation. CA = Cached Allocation)
 
 MA 232.0 KB         Max_MA 245.5 KB         CA 2048.0 KB         Max_CA 2048 KB
 
 使用checkpoint优化
+
 MA 188.0 KB         Max_MA 201.5 KB         CA 2048.0 KB         Max_CA 2048 KB
 
 显存使用有显著减少
