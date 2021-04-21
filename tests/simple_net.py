@@ -25,8 +25,8 @@ class SimpleCKPModel(torch.nn.Module):
         self.linear4 = torch.nn.Linear(hidden_dim, hidden_dim)
         self.cross_entropy_loss = torch.nn.CrossEntropyLoss()
     
-    def init_ckp(self, data_type : torch.dtype):
-        numel = (self.hidden_dim * self.hidden_dim + self.hidden_dim)*2
+    def init_ckp(self, batch_size, data_type : torch.dtype):
+        numel = (self.hidden_dim * batch_size)*2
         init_checkpointed_activations_memory_buffer(numel, data_type)
     
     def _checkpointed_forward(self, x):

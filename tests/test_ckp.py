@@ -16,7 +16,7 @@ parser.add_argument('--res_check', dest='res_check', action = 'store_true',
 parser.add_argument('--use_fp16', dest='use_fp16', action = 'store_true',
                     help='using FP16 for training.')
 
-def test_simple_model(is_ckp: bool = False, is_fp16: bool = False, hidden_dim, batch_size):
+def test_simple_model(is_ckp: bool = False, is_fp16: bool = False, hidden_dim = 40, batch_size = 128):
     logging.info(f'test a simple model with checkpoit {is_ckp} FP16 {is_fp16}')
 
     device = torch.device('cuda:0')
@@ -34,7 +34,7 @@ def test_simple_model(is_ckp: bool = False, is_fp16: bool = False, hidden_dim, b
         # model.half()
 
     if is_ckp:
-        model.init_ckp(torch.half if is_fp16 else torch.float)
+        model.init_ckp(batch_size, torch.half if is_fp16 else torch.float)
 
 
     data_loader = get_data_loader(
@@ -82,6 +82,17 @@ def test_simple_model(is_ckp: bool = False, is_fp16: bool = False, hidden_dim, b
     return loss_res
 
 
+def calculate_mem_need(hidden_dim, batch_size, is_fp16):
+    data_size = 2 if is_fp16 else 4
+
+    param_size = (hidden_dim * hidden_dim + hidden_dim) * 4 * data_size 
+    # FWD-only
+    act_size = (batch_size * hidden_dim) * 4 * data_size
+
+    # Model paramter + grad + M + V
+    total_model_size = param_size * (8 if is_fp16 else 4)
+    logging.info(f"param_size {param_size/1024} KB, total_model_size {total_model_size/1024} KB, act_size {act_size/1024} KB")
+
 if __name__ == "__main__":
     logging.basicConfig(
         format=
@@ -97,6 +108,8 @@ if __name__ == "__main__":
     hidden_dim = 40
     batch_size = 128
     test_simple_model(is_ckp=use_ckp, is_fp16=use_fp16,hidden_dim=hidden_dim, batch_size=batch_size)
+
+    calculate_mem_need(hidden_dim = hidden_dim, batch_size = batch_size, is_fp16 = use_fp16)
 
     # 检查结果正确性
     res_check = args.res_check
