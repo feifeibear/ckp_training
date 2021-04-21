@@ -25,7 +25,7 @@ from torch.cuda import _lazy_call, device as device_ctx_manager
 from torch.utils.checkpoint import detach_variable
 
 from .memory import allocate_mem_buff
-
+import logging
 # from .initialize import get_data_parallel_rank
 # from .initialize import get_tensor_model_parallel_group
 # from .initialize import get_tensor_model_parallel_rank
@@ -50,7 +50,7 @@ def init_checkpointed_activations_memory_buffer():
     #     'number of layers is not divisible by checkpoint-num-layers'
     # num_checkpointer_layers = args.num_layers // args.checkpoint_num_layers
     # numel = per_layer * num_checkpointer_layers
-    # dtype = torch.half
+    dtype = torch.half
     # if not args.fp16:
     #     dtype = torch.float
     numel = (40*40+40)*2
@@ -60,7 +60,7 @@ def init_checkpointed_activations_memory_buffer():
     _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER = allocate_mem_buff(
         'checkpointed activations', numel, dtype, track_usage=False)
 
-
+    logging.info('def init_checkpointed_activations_memory_buffer')
 def reset_checkpointed_activations_memory_buffer():
     """Reset the memory used for checkpointing."""
     if _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER is not None:

@@ -13,7 +13,7 @@
 
 import torch
 from torch.utils.data import SequentialSampler
-from checkpoint import reset_checkpointed_activations_memory_buffer, checkpoint
+from checkpoint import reset_checkpointed_activations_memory_buffer, checkpoint, init_checkpointed_activations_memory_buffer
 
 class SimpleCKPModel(torch.nn.Module):
     def __init__(self, hidden_dim, empty_grad=False):
@@ -23,6 +23,7 @@ class SimpleCKPModel(torch.nn.Module):
         self.linear3 = torch.nn.Linear(hidden_dim, hidden_dim)
         self.linear4 = torch.nn.Linear(hidden_dim, hidden_dim)
         self.cross_entropy_loss = torch.nn.CrossEntropyLoss()
+        init_checkpointed_activations_memory_buffer()
     
     def _checkpointed_forward(self, x):
         """Forward method with activation checkpointing."""
