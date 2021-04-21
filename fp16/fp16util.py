@@ -33,11 +33,9 @@ from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
 
 from apex.multi_tensor_apply import multi_tensor_applier
 import amp_C
-from client import HybridPSClient
 
 # from megatron import mpu
 import logging
-from client import PSTensorStatus
 
 
 class tofp16(nn.Module):
@@ -172,7 +170,7 @@ def prep_param_lists(model, flat_master=False):
 def model_grads_to_master_grads(model_params,
                                 master_params,
                                 flat_master=False,
-                                client: HybridPSClient = None):
+                                client = None):
     """
     Copy model gradients to master gradients.
     Args:
@@ -241,20 +239,7 @@ def master_params_to_model_params(model_params,
                 _unflatten_dense_tensors(master_params[0].data, model_params)):
             model.data.copy_(master)
     else:
-        for model, master in zip(model_params, master_params):
-            # TODO(jiaruing) 简单弄成计算设备在cuda上，可以根据model和master现在
-            # 所在的设备选择计算设备
-            # TODO(jiaruifang) 这个过程可以和FWD计算重叠。
-            if client is not None:
-                client.access_data(model, torch.device('cuda:0'))
-                client.access_data(master, torch.device('cuda:0'))
-
-            model.data.copy_(master.data)
-
-            if client is not None:
-                # FP16 param data被标记成hold
-                client.release_data(model, PSTensorStatus.HOLD)
-                client.release_data(master, PSTensorStatus.HOLD)
+        pass
 
 
 # Backward compatibility fixes

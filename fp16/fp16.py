@@ -35,8 +35,6 @@ from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
 from .loss_scaler import DynamicLossScaler, LossScaler
 from .fp16util import model_grads_to_master_grads, master_params_to_model_params, clip_grad_norm
 
-from client import HybridPSClient
-
 from apex.multi_tensor_apply import multi_tensor_applier
 import amp_C
 import logging
@@ -184,7 +182,7 @@ class FP16_Optimizer(object):
                  dynamic_loss_scale=False,
                  dynamic_loss_args=None,
                  verbose=False,
-                 client: HybridPSClient = None):
+                 client = None):
         if not torch.cuda.is_available:
             raise SystemError("Cannot use fp16 without CUDA.")
 
@@ -327,14 +325,14 @@ class FP16_Optimizer(object):
     def _update_scale(self, has_overflow=False):
         self.loss_scaler.update_scale(has_overflow)
 
-    def _master_params_to_model_params(self, client: HybridPSClient = None):
+    def _master_params_to_model_params(self, client = None):
         for fp16_group, fp32_from_fp16_group in zip(
                 self.fp16_groups, self.fp32_from_fp16_groups):
             master_params_to_model_params(fp16_group,
                                           fp32_from_fp16_group,
                                           client=client)
 
-    def _model_params_to_master_params(self, client: HybridPSClient = None):
+    def _model_params_to_master_params(self, client = None):
         for fp16_group, fp32_from_fp16_group in zip(
                 self.fp16_groups, self.fp32_from_fp16_groups):
             master_params_to_model_params(fp32_from_fp16_group,
@@ -344,7 +342,7 @@ class FP16_Optimizer(object):
     # To consider:  Integrate distributed with this wrapper by registering a hook on each variable
     # that does the overflow check, gradient copy + downscale, and fp32
     # allreduce in a different stream.
-    def _model_grads_to_master_grads(self, client: HybridPSClient = None):
+    def _model_grads_to_master_grads(self, client = None):
         for fp16_group, fp32_from_fp16_group in zip(
                 self.fp16_groups, self.fp32_from_fp16_groups):
             model_grads_to_master_grads(fp16_group,
