@@ -13,14 +13,7 @@
 
 运行
 
-1. 查看checkpoint的内存使用
-`tests/test_ckp.py --use_ckp`
-
-2. 查看无checkpoint的内存使用
-`tests/test_ckp.py`
-
-3. 检查checkpoint结果是否正确
-`tests/test_ckp.py --res_check`
+`tests/test_ckp.py [--use_ckp] [--use_fp16] [--res_check]`
 
 #### 结果
 不使用checkpoint优化(MA = Memory Allocation. CA = Cached Allocation)

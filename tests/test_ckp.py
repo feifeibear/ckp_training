@@ -10,10 +10,11 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Checkpointing for Memory Saving.')
 parser.add_argument('--use_ckp', dest='use_ckp', action = 'store_true',
-                    help='an integer for the accumulator')
+                    help='using checkpointing for memory saveing.')
 parser.add_argument('--res_check', dest='res_check', action = 'store_true',
-                    help='check results correctness of checkpointing')
-
+                    help='check results correctness of checkpointing.')
+parser.add_argument('--use_fp16', dest='use_fp16', action = 'store_true',
+                    help='using FP16 for training.')
 
 def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
     logging.info(f'test a simple model with checkpoit {is_ckp} FP16 {is_fp16}')
@@ -32,6 +33,9 @@ def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
     if is_fp16:
         model = FP16_Module(model)
         # model.half()
+
+    if is_ckp:
+        model.init_ckp(torch.half if is_fp16 else torch.float)
 
     data_loader = get_data_loader(
         model=model,
@@ -86,8 +90,9 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     use_ckp = args.use_ckp
+    use_fp16 = args.use_fp16
 
-    test_simple_model(is_ckp=use_ckp, is_fp16=True)
+    test_simple_model(is_ckp=use_ckp, is_fp16=use_fp16)
 
     # 检查结果正确性
     res_check = args.res_check

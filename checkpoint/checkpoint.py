@@ -40,7 +40,7 @@ _MODEL_PARALLEL_RNG_TRACKER_NAME = 'model-parallel-rng'
 _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER = None
 
 
-def init_checkpointed_activations_memory_buffer():
+def init_checkpointed_activations_memory_buffer(numel, dtype):
     """Initializ the memory buffer for the checkpointed activations."""
     # args = get_args()
 
@@ -53,16 +53,15 @@ def init_checkpointed_activations_memory_buffer():
     # dtype = torch.half
     # if not args.fp16:
     #     dtype = torch.float
-    # TODO(jiarufiang)这里是写死的，两层参数的numel，应该根据算法的参数自适应
-    numel = (40*40+40)*2
-    dtype = torch.half
+
     global _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER
     assert _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER is None, \
         'checkpointed activations memory buffer is already allocated.'
     _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER = allocate_mem_buff(
         'checkpointed activations', numel, dtype, track_usage=False)
 
-    logging.info('def init_checkpointed_activations_memory_buffer')
+    logging.info(f'def init_checkpointed_activations_memory_buffer {numel} {dtype}')
+    
 def reset_checkpointed_activations_memory_buffer():
     """Reset the memory used for checkpointing."""
     if _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER is not None:
