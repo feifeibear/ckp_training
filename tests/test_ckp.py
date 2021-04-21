@@ -16,10 +16,9 @@ parser.add_argument('--res_check', dest='res_check', action = 'store_true',
 parser.add_argument('--use_fp16', dest='use_fp16', action = 'store_true',
                     help='using FP16 for training.')
 
-def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
+def test_simple_model(is_ckp: bool = False, is_fp16: bool = False, hidden_dim, batch_size):
     logging.info(f'test a simple model with checkpoit {is_ckp} FP16 {is_fp16}')
 
-    hidden_dim = 40
     device = torch.device('cuda:0')
 
     if is_ckp:
@@ -37,7 +36,9 @@ def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
     if is_ckp:
         model.init_ckp(torch.half if is_fp16 else torch.float)
 
+
     data_loader = get_data_loader(
+        batch_size = batch_size,
         model=model,
         total_samples=1000,
         hidden_dim=hidden_dim,
@@ -92,19 +93,22 @@ if __name__ == "__main__":
     use_ckp = args.use_ckp
     use_fp16 = args.use_fp16
 
-    test_simple_model(is_ckp=use_ckp, is_fp16=use_fp16)
+    # 训练参数，可以自己定义
+    hidden_dim = 40
+    batch_size = 128
+    test_simple_model(is_ckp=use_ckp, is_fp16=use_fp16,hidden_dim=hidden_dim, batch_size=batch_size)
 
     # 检查结果正确性
     res_check = args.res_check
     print(use_ckp, res_check)
     if res_check:
         torch.manual_seed(0)
-        loss_ref_list = test_simple_model(is_ckp=True, is_fp16=True)
+        loss_ref_list = test_simple_model(is_ckp=True, is_fp16=True,  hidden_dim=hidden_dim, batch_size=batch_size)
 
         torch.cuda.empty_cache() 
 
         torch.manual_seed(0)
-        loss_list = test_simple_model(is_ckp=False, is_fp16=True)
+        loss_list = test_simple_model(is_ckp=False, is_fp16=True, hidden_dim=hidden_dim, batch_size=batch_size)
 
         print('ckp', loss_list)
         print('ref', loss_ref_list)

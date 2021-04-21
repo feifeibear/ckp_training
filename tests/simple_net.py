@@ -71,11 +71,11 @@ class SimpleModel(torch.nn.Module):
 
 
 def get_data_loader(model,
+                    batch_size,
                     total_samples,
                     hidden_dim,
                     device,
                     data_type=torch.float):
-    batch_size = 4  #model.train_micro_batch_size_per_gpu()
     train_data = torch.randn(total_samples,
                              hidden_dim,
                              device=device,
