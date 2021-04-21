@@ -50,10 +50,12 @@ def init_checkpointed_activations_memory_buffer():
     #     'number of layers is not divisible by checkpoint-num-layers'
     # num_checkpointer_layers = args.num_layers // args.checkpoint_num_layers
     # numel = per_layer * num_checkpointer_layers
-    dtype = torch.half
+    # dtype = torch.half
     # if not args.fp16:
     #     dtype = torch.float
+    # TODO(jiarufiang)这里是写死的，应该根据算法的参数自适应
     numel = (40*40+40)*2
+    dtype = torch.half
     global _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER
     assert _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER is None, \
         'checkpointed activations memory buffer is already allocated.'

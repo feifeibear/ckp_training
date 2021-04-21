@@ -14,9 +14,9 @@ def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
     device = torch.device('cuda:0')
 
     if is_ckp:
-        model = SimpleModel(hidden_dim, empty_grad=False)
-    else:
         model = SimpleCKPModel(hidden_dim, empty_grad=False)
+    else:
+        model = SimpleModel(hidden_dim, empty_grad=False)
     model.cuda()
 
     see_memory_usage(f"CKP {is_ckp} after model init", force = True)
@@ -60,7 +60,7 @@ def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
 
         # chunk 0和 chunk 1还在compute状态
         optimizer.step()
-        # see_memory_usage(f"is_ckp {is_ckp} after step {n}", force = True)
+        see_memory_usage(f"is_ckp {is_ckp} after step {n}", force = True)
 
         if n == 5: break
 
@@ -80,10 +80,12 @@ if __name__ == "__main__":
         torch.manual_seed(0)
         loss_ref_list = test_simple_model(is_ckp=False, is_fp16=True)
 
-        torch.manual_seed(0)
-        loss_list = test_simple_model(is_ckp=True, is_fp16=True)
+        torch.cuda.empty_cache() 
 
-        print('ckp', loss_list)
-        print('ref', loss_ref_list)
-        for loss, loss_ref in zip(loss_list, loss_ref_list):
-            assert loss == loss_ref
+        torch.manual_seed(0)
+        # loss_list = test_simple_model(is_ckp=False, is_fp16=True)
+
+        # print('ckp', loss_list)
+        # print('ref', loss_ref_list)
+        # for loss, loss_ref in zip(loss_list, loss_ref_list):
+        #     assert loss == loss_ref
