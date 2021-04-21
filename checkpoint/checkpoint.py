@@ -53,7 +53,7 @@ def init_checkpointed_activations_memory_buffer():
     # dtype = torch.half
     # if not args.fp16:
     #     dtype = torch.float
-    # TODO(jiarufiang)这里是写死的，应该根据算法的参数自适应
+    # TODO(jiarufiang)这里是写死的，两层参数的numel，应该根据算法的参数自适应
     numel = (40*40+40)*2
     dtype = torch.half
     global _CHECKPOINTED_ACTIVATIONS_MEMORY_BUFFER

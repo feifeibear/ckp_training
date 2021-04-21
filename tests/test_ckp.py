@@ -6,6 +6,14 @@ from utils import see_memory_usage
 from fp16 import FP16_Module
 from fp16 import FP16_Optimizer
 import time
+import argparse
+
+parser = argparse.ArgumentParser(description='Checkpointing for Memory Saving.')
+parser.add_argument('--use_ckp', dest='use_ckp', action = 'store_true',
+                    help='an integer for the accumulator')
+parser.add_argument('--res_check', dest='res_check', action = 'store_true',
+                    help='check results correctness of checkpointing')
+
 
 def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
     logging.info(f'test a simple model with checkpoit {is_ckp} FP16 {is_fp16}')
@@ -65,7 +73,7 @@ def test_simple_model(is_ckp: bool = False, is_fp16: bool = False):
         if n == 5: break
 
     elapse = time.time() - start_time
-    # logging.info(f"is_ckp {is_ckp} elapse {elapse}")
+    logging.info(f"is_ckp {is_ckp} elapse {elapse}")
     return loss_res
 
 
@@ -75,17 +83,25 @@ if __name__ == "__main__":
         '%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
         datefmt='%Y-%m-%d:%H:%M:%S',
         level=logging.INFO)
-    test_ckp = True
-    if test_ckp:
+    
+    args = parser.parse_args()
+    use_ckp = args.use_ckp
+
+    test_simple_model(is_ckp=use_ckp, is_fp16=True)
+
+    # 检查结果正确性
+    res_check = args.res_check
+    print(use_ckp, res_check)
+    if res_check:
         torch.manual_seed(0)
-        loss_ref_list = test_simple_model(is_ckp=False, is_fp16=True)
+        loss_ref_list = test_simple_model(is_ckp=True, is_fp16=True)
 
         torch.cuda.empty_cache() 
 
         torch.manual_seed(0)
-        # loss_list = test_simple_model(is_ckp=False, is_fp16=True)
+        loss_list = test_simple_model(is_ckp=False, is_fp16=True)
 
-        # print('ckp', loss_list)
-        # print('ref', loss_ref_list)
-        # for loss, loss_ref in zip(loss_list, loss_ref_list):
-        #     assert loss == loss_ref
+        print('ckp', loss_list)
+        print('ref', loss_ref_list)
+        for loss, loss_ref in zip(loss_list, loss_ref_list):
+            assert loss == loss_ref
